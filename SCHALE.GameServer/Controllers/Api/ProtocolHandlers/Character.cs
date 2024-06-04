@@ -86,12 +86,15 @@ namespace SCHALE.GameServer.Controllers.Api.ProtocolHandlers
 
             using var trn = context.Database.BeginTransaction();
 
-            // TODO: try catch
-            ch.StarGrade++;
-            item.StackCount -= itemNeeded;
+            try {
+                ch.StarGrade++;
+                item.StackCount -= itemNeeded;
 
-            context.SaveChanges();
-            trn.Commit();
+                context.SaveChanges();
+                trn.Commit();
+            } catch (Exception) {
+                throw;
+            }
 
             return new CharacterTranscendenceResponse()
             {
@@ -106,19 +109,17 @@ namespace SCHALE.GameServer.Controllers.Api.ProtocolHandlers
         [ProtocolHandler(Protocol.Character_WeaponTranscendence)]
         public ResponsePacket WeaponTranscendenceHandler(CharacterWeaponTranscendenceRequest req)
         {
-            // TODO: this handler is BROKEN in CLIENT
+            // TODO: implement right reponse
             var accountID = sessionKeyService.GetAccountServerId(req.SessionKey);
             var ch = context.GetCharacter(req.TargetCharacterServerId, false)!;
             var weapon = context.GetWeapon(accountID, ch.UniqueId);
-
             if (weapon == null) throw new InvalidOperationException("character has no weapon");
 
             var itemNeeded = weapon.StarGrade switch
             {
                 1 => 120,
                 2 => 180,
-                _ => 0,
-                // _ => throw new ArgumentOutOfRangeException(),
+                _ => throw new ArgumentOutOfRangeException(),
             };
 
             var item = context.GetItem(accountID, ch.UniqueId);
@@ -126,20 +127,24 @@ namespace SCHALE.GameServer.Controllers.Api.ProtocolHandlers
 
             using var trn = context.Database.BeginTransaction();
 
-            // TODO: try catch
-            // weapon.StarGrade++;
-            // item.StackCount -= itemNeeded;
-
-            context.SaveChanges();
-            trn.Commit();
-
-            return new CharacterTranscendenceResponse()
+            try
             {
-                CharacterDB = ch,
+                weapon.StarGrade++;
+                item.StackCount -= itemNeeded;
+
+                context.SaveChanges();
+                trn.Commit();
+            } catch (Exception)
+            {
+                throw;
+            }
+
+            return new CharacterWeaponTranscendenceResponse()
+            {
                 ParcelResultDB = new()
                 {
-                    // ItemDBs = new Dictionary<long, ItemDB> { { item.UniqueId, item } },
-                    // WeaponDBs = new List<WeaponDB> { weapon },
+                    ItemDBs = new Dictionary<long, ItemDB> { { item.UniqueId, item } },
+                    WeaponDBs = new List<WeaponDB> { weapon },
                 }
             };
         }
