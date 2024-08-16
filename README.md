@@ -32,7 +32,11 @@ dotnet run
 ```
 
 ### Mitmproxy
-
+Install Mitmproxy
+```bash
+pip install mitmproxy
+```
+Run it
 ```bash
 # in this repo
 cd Scripts\redirect_server_mitmproxy
