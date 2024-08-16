@@ -242,57 +242,53 @@ namespace SCHALE.GameServer.Controllers.Api.ProtocolHandlers
                 }
             }
 
-            var executionStrategy = _context.Database.CreateExecutionStrategy();
-            executionStrategy.Execute(() =>
+            using var transaction = _context.Database.BeginTransaction();
+
+            try
             {
-                using var transaction = _context.Database.BeginTransaction();
+                // add characters
+                _context.Characters.AddRange(
+                    gachaList.Where(x => x.Character != null)
+                            .Select(x => x.Character)!);
 
-                try
+                // create if item does not exist
+                foreach (var id in itemDict.Keys)
                 {
-                    // add characters
-                    _context.Characters.AddRange(
-                        gachaList.Where(x => x.Character != null)
-                                .Select(x => x.Character)!);
-
-                    // create if item does not exist
-                    foreach (var id in itemDict.Keys)
+                    var itemExists = _context.Items
+                        .Any(x => x.AccountServerId == account.ServerId && x.UniqueId == id);
+                    if (!itemExists)
                     {
-                        var itemExists = _context.Items
-                            .Any(x => x.AccountServerId == account.ServerId && x.UniqueId == id);
-                        if (!itemExists)
+                        _context.Items.Add(new ItemDB()
                         {
-                            _context.Items.Add(new ItemDB()
-                            {
-                                IsNew = true,
-                                UniqueId = id,
-                                StackCount = 0,
-                                AccountServerId = account.ServerId,
-                            });
-                        }
+                            IsNew = true,
+                            UniqueId = id,
+                            StackCount = 0,
+                            AccountServerId = account.ServerId,
+                        });
                     }
-                    _context.SaveChanges();
-
-                    // perform item count update
-                    foreach (var (id, count) in itemDict)
-                    {
-                        _context.Items
-                            .Where(x => x.AccountServerId == account.ServerId && x.UniqueId == id)
-                            .ExecuteUpdate(setters => setters.SetProperty(
-                                item => item.StackCount, item => item.StackCount + count));
-                    }
-
-                    _context.SaveChanges();
-
-                    transaction.Commit();
-
-                    _context.Entry(account).Collection(x => x.Items).Reload();
                 }
-                catch (Exception ex)
+                _context.SaveChanges();
+
+                // perform item count update
+                foreach (var (id, count) in itemDict)
                 {
-                    _logger.LogError("Transaction failed: {Message}", ex.Message);
-                    throw;
+                    _context.Items
+                        .Where(x => x.AccountServerId == account.ServerId && x.UniqueId == id)
+                        .ExecuteUpdate(setters => setters.SetProperty(
+                            item => item.StackCount, item => item.StackCount + count));
                 }
-            });
+
+                _context.SaveChanges();
+
+                transaction.Commit();
+
+                _context.Entry(account).Collection(x => x.Items).Reload();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Transaction failed: {Message}", ex.Message);
+                throw;
+            }
 
             var itemDbList = itemDict.Keys
                 .Select(id => _context.Items.AsNoTracking().First(x => x.AccountServerId == account.ServerId && x.UniqueId == id))
