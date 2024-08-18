@@ -363,6 +363,9 @@ namespace SCHALE.Common.Database
         public virtual ICollection<MultiFloorRaidDB> MultiFloorRaids { get; }
 
         [JsonIgnore]
+        public virtual ICollection<CafeDB> Cafes { get; }
+
+        [JsonIgnore]
         public virtual RaidInfo RaidInfo { get; set; }
 
         public AccountDB() { 
@@ -377,6 +380,7 @@ namespace SCHALE.Common.Database
             Scenarios = new List<ScenarioHistoryDB>();
             Currencies = new List<AccountCurrencyDB>();
             MultiFloorRaids = new List<MultiFloorRaidDB>();
+            Cafes = new List<CafeDB>();
         }
 
         public AccountDB(long publisherAccountId) : this()
@@ -620,6 +624,14 @@ namespace SCHALE.Common.Database
 
     public class CafeDB
     {
+        [JsonIgnore]
+        public virtual AccountDB Account { get; set; }
+
+        [JsonIgnore]
+        public long AccountServerId { get; set; }
+
+        [Key]
+        public long ServerId { get; set; }
         public long CafeDBId { get; set; }
         public long CafeId { get; set; }
         public long AccountId { get; set; }
@@ -633,7 +645,9 @@ namespace SCHALE.Common.Database
         public List<FurnitureDB> FurnitureDBs { get; set; }
         public DateTime ProductionAppliedTime { get; set; }
         public CafeProductionDB ProductionDB { get; set; }
+        [NotMapped]
         public Dictionary<CurrencyTypes, long> CurrencyDict_Obsolete { get; set; }
+        [NotMapped]
         public Dictionary<CurrencyTypes, DateTime> UpdateTimeDict_Obsolete { get; set; }
     }
 

@@ -2,6 +2,7 @@
 using SCHALE.Common.Database.ModelExtensions;
 using SCHALE.Common.FlatData;
 using SCHALE.Common.NetworkProtocol;
+using SCHALE.Common.Parcel;
 using SCHALE.GameServer.Services;
 
 namespace SCHALE.GameServer.Controllers.Api.ProtocolHandlers
@@ -259,6 +260,22 @@ namespace SCHALE.GameServer.Controllers.Api.ProtocolHandlers
                 .ToList();
 
             account.AddCharacters(context, [.. newCharacters]);
+            context.SaveChanges();
+
+            // Create Cafe
+            account.Cafes.Add(Cafe.CreateCafe(req.AccountId));
+            var count = 0;
+            foreach(var character in account.Characters)
+            {
+                account.Cafes.FirstOrDefault().CafeVisitCharacterDBs.Add(count, new()
+                {
+                    IsSummon = false,
+                    LastInteractTime = DateTime.MinValue,
+                    UniqueId = character.UniqueId,
+                    ServerId = character.ServerId
+                });
+                count++;
+            }
             context.SaveChanges();
 
             var favCharacter = defaultCharacters.Find(x => x.FavoriteCharacter);
