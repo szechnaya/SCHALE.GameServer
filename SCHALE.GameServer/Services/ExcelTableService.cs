@@ -28,6 +28,18 @@ namespace SCHALE.GameServer.Services
 
             if (Directory.Exists(excelDir))
             {
+                if (File.Exists(excelZipPath))
+                {
+                    Log.Information($"Local Excel Zip Detected! Extracting...");
+                    using (var zip = ZipFile.Read(excelZipPath)) {
+                        zip.Password = Convert.ToBase64String(TableService.CreatePassword(Path.GetFileName(excelZipPath)));
+                        zip.ExtractAll(excelDir, ExtractExistingFileAction.OverwriteSilently);
+                    }
+                    
+                    File.Delete(excelZipPath);
+                    Log.Information($"Excel Version {Config.Instance.VersionId} extracted!");
+                }
+                
                 Log.Information("Excels already downloaded, skipping...");
                 return;
             }
