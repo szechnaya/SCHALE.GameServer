@@ -360,6 +360,9 @@ namespace SCHALE.Common.Database
         public virtual ICollection<AccountCurrencyDB> Currencies { get; }
 
         [JsonIgnore]
+        public virtual ICollection<MultiFloorRaidDB> MultiFloorRaids { get; }
+
+        [JsonIgnore]
         public virtual RaidInfo RaidInfo { get; set; }
 
         public AccountDB() { 
@@ -373,6 +376,7 @@ namespace SCHALE.Common.Database
             MemoryLobbies = new List<MemoryLobbyDB>();
             Scenarios = new List<ScenarioHistoryDB>();
             Currencies = new List<AccountCurrencyDB>();
+            MultiFloorRaids = new List<MultiFloorRaidDB>();
         }
 
         public AccountDB(long publisherAccountId) : this()
@@ -1884,6 +1888,14 @@ namespace SCHALE.Common.Database
 
     public class MultiFloorRaidDB
     {
+        [JsonIgnore]
+        public virtual AccountDB Account { get; set; }
+
+        [JsonIgnore]
+        public long AccountServerId { get; set; }
+
+        [Key]
+        public long ServerId { get; set; }
         public long SeasonId { get; set; }
         public int ClearedDifficulty { get; set; }
         public DateTime LastClearDate { get; set; }
