@@ -26,6 +26,7 @@ namespace SCHALE.Common.Database
         public DbSet<AccountCurrencyDB> Currencies { get; set; }
         public DbSet<MultiFloorRaidDB> MultiFloorRaids { get; set; }
         public DbSet<CafeDB> Cafes { get; set; }
+        public DbSet<WeekDungeonStageHistoryDB> WeekDungeonStageHistories { get; set; }
 
         public static SCHALEContext Create(string connectionString) =>
             new(new DbContextOptionsBuilder<SCHALEContext>()
@@ -122,6 +123,9 @@ namespace SCHALE.Common.Database
             modelBuilder.Entity<CafeDB>().Property(x => x.CafeVisitCharacterDBs).HasJsonConversion();
             modelBuilder.Entity<CafeDB>().Property(x => x.FurnitureDBs).HasJsonConversion();
             modelBuilder.Entity<CafeDB>().Property(x => x.ProductionDB).HasJsonConversion();
+
+            modelBuilder.Entity<WeekDungeonStageHistoryDB>().Property(x => x.ServerId).ValueGeneratedOnAdd();
+            modelBuilder.Entity<WeekDungeonStageHistoryDB>().Property(x => x.StarGoalRecord).HasJsonConversion();
         }
     }
 
