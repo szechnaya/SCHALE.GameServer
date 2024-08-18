@@ -300,6 +300,14 @@ namespace SCHALE.Common.Database
 
     public class AccountCurrencyDB
     {
+        [JsonIgnore]
+        public virtual AccountDB Account { get; set; }
+
+        [JsonIgnore]
+        public long AccountServerId { get; set; }
+
+        [Key]
+        public long ServerId { get; set; }
         public long AccountLevel { get; set; }
         public long AcademyLocationRankSum { get; set; }
         public Dictionary<CurrencyTypes, long> CurrencyDict { get; set; }
@@ -349,6 +357,9 @@ namespace SCHALE.Common.Database
         public virtual ICollection<ScenarioHistoryDB> Scenarios { get; }
 
         [JsonIgnore]
+        public virtual ICollection<AccountCurrencyDB> Currencies { get; }
+
+        [JsonIgnore]
         public virtual RaidInfo RaidInfo { get; set; }
 
         public AccountDB() { 
@@ -361,6 +372,7 @@ namespace SCHALE.Common.Database
             Gears = new List<GearDB>();
             MemoryLobbies = new List<MemoryLobbyDB>();
             Scenarios = new List<ScenarioHistoryDB>();
+            Currencies = new List<AccountCurrencyDB>();
         }
 
         public AccountDB(long publisherAccountId) : this()
