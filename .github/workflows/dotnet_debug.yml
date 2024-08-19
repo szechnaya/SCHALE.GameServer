@@ -1,0 +1,33 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: BuildDebug
+
+on: workflow_dispatch
+
+jobs:
+  build_win:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.204
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Publish
+      run: dotnet publish -c Debug -p:PublishProfile=./SCHALE.GameServer/Properties/PublishProfiles/win_x64.pubxml
+    - name: rm files
+      run: |
+        del ./SCHALE.GameServer/bin/Debug/net8.0/win-x64/publish/SCHALE.GameServer.pdb
+        del ./SCHALE.GameServer/bin/Debug/net8.0/win-x64/publish/SCHALE.Common.pdb
+        del ./SCHALE.GameServer/bin/Debug/net8.0/win-x64/publish/appsettings.Docker.json
+        del ./SCHALE.GameServer/bin/Debug/net8.0/win-x64/publish/appsettings.Development.json
+    - name: Upload output
+      uses: actions/upload-artifact@v2
+      with:
+        name: "Build_Windows_Debug"
+        path: ./SCHALE.GameServer/bin/Debug/net8.0/win-x64/publish
