@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SCHALE.Common.Database;
 
@@ -11,9 +12,11 @@ using SCHALE.Common.Database;
 namespace SCHALE.Common.Migrations.SqlServerMigrations
 {
     [DbContext(typeof(SCHALEContext))]
-    partial class SCHALEContextModelSnapshot : ModelSnapshot
+    [Migration("20240818180618_Cafe")]
+    partial class Cafe
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -602,34 +605,6 @@ namespace SCHALE.Common.Migrations.SqlServerMigrations
                     b.ToTable("Weapons");
                 });
 
-            modelBuilder.Entity("SCHALE.Common.Database.WeekDungeonStageHistoryDB", b =>
-                {
-                    b.Property<long>("ServerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ServerId"));
-
-                    b.Property<long>("AccountServerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsCleardEver")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("StageUniqueId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("StarGoalRecord")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ServerId");
-
-                    b.HasIndex("AccountServerId");
-
-                    b.ToTable("WeekDungeonStageHistories");
-                });
-
             modelBuilder.Entity("SCHALE.Common.Database.AccountCurrencyDB", b =>
                 {
                     b.HasOne("SCHALE.Common.Database.AccountDB", "Account")
@@ -762,17 +737,6 @@ namespace SCHALE.Common.Migrations.SqlServerMigrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("SCHALE.Common.Database.WeekDungeonStageHistoryDB", b =>
-                {
-                    b.HasOne("SCHALE.Common.Database.AccountDB", "Account")
-                        .WithMany("WeekDungeonStageHistories")
-                        .HasForeignKey("AccountServerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-                });
-
             modelBuilder.Entity("SCHALE.Common.Database.AccountDB", b =>
                 {
                     b.Navigation("Cafes");
@@ -798,8 +762,6 @@ namespace SCHALE.Common.Migrations.SqlServerMigrations
                     b.Navigation("Scenarios");
 
                     b.Navigation("Weapons");
-
-                    b.Navigation("WeekDungeonStageHistories");
                 });
 #pragma warning restore 612, 618
         }

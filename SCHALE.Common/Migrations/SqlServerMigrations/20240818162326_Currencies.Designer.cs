@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SCHALE.Common.Database;
 
@@ -11,9 +12,11 @@ using SCHALE.Common.Database;
 namespace SCHALE.Common.Migrations.SqlServerMigrations
 {
     [DbContext(typeof(SCHALEContext))]
-    partial class SCHALEContextModelSnapshot : ModelSnapshot
+    [Migration("20240818162326_Currencies")]
+    partial class Currencies
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,57 +132,6 @@ namespace SCHALE.Common.Migrations.SqlServerMigrations
                     b.HasKey("ServerId");
 
                     b.ToTable("Accounts");
-                });
-
-            modelBuilder.Entity("SCHALE.Common.Database.CafeDB", b =>
-                {
-                    b.Property<long>("ServerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ServerId"));
-
-                    b.Property<long>("AccountId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("AccountServerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CafeDBId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CafeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("CafeRank")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CafeVisitCharacterDBs")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FurnitureDBs")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastSummonDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ProductionAppliedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ProductionDB")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ServerId");
-
-                    b.HasIndex("AccountServerId");
-
-                    b.ToTable("Cafes");
                 });
 
             modelBuilder.Entity("SCHALE.Common.Database.CharacterDB", b =>
@@ -492,56 +444,6 @@ namespace SCHALE.Common.Migrations.SqlServerMigrations
                     b.ToTable("GuestAccounts");
                 });
 
-            modelBuilder.Entity("SCHALE.Common.Database.MultiFloorRaidDB", b =>
-                {
-                    b.Property<long>("ServerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ServerId"));
-
-                    b.Property<long>("AccountServerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("AllCleared")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ClearBattleFrame")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ClearedDifficulty")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("HasReceivableRewards")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastClearDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("LastRewardDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("RewardDifficulty")
-                        .HasColumnType("int");
-
-                    b.Property<long>("SeasonId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("TotalReceivableRewards")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TotalReceivedRewards")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ServerId");
-
-                    b.HasIndex("AccountServerId");
-
-                    b.ToTable("MultiFloorRaids");
-                });
-
             modelBuilder.Entity("SCHALE.Common.Database.ScenarioHistoryDB", b =>
                 {
                     b.Property<long>("ServerId")
@@ -602,49 +504,10 @@ namespace SCHALE.Common.Migrations.SqlServerMigrations
                     b.ToTable("Weapons");
                 });
 
-            modelBuilder.Entity("SCHALE.Common.Database.WeekDungeonStageHistoryDB", b =>
-                {
-                    b.Property<long>("ServerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ServerId"));
-
-                    b.Property<long>("AccountServerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsCleardEver")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("StageUniqueId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("StarGoalRecord")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ServerId");
-
-                    b.HasIndex("AccountServerId");
-
-                    b.ToTable("WeekDungeonStageHistories");
-                });
-
             modelBuilder.Entity("SCHALE.Common.Database.AccountCurrencyDB", b =>
                 {
                     b.HasOne("SCHALE.Common.Database.AccountDB", "Account")
                         .WithMany("Currencies")
-                        .HasForeignKey("AccountServerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-                });
-
-            modelBuilder.Entity("SCHALE.Common.Database.CafeDB", b =>
-                {
-                    b.HasOne("SCHALE.Common.Database.AccountDB", "Account")
-                        .WithMany("Cafes")
                         .HasForeignKey("AccountServerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -729,17 +592,6 @@ namespace SCHALE.Common.Migrations.SqlServerMigrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("SCHALE.Common.Database.MultiFloorRaidDB", b =>
-                {
-                    b.HasOne("SCHALE.Common.Database.AccountDB", "Account")
-                        .WithMany("MultiFloorRaids")
-                        .HasForeignKey("AccountServerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-                });
-
             modelBuilder.Entity("SCHALE.Common.Database.ScenarioHistoryDB", b =>
                 {
                     b.HasOne("SCHALE.Common.Database.AccountDB", "Account")
@@ -762,21 +614,8 @@ namespace SCHALE.Common.Migrations.SqlServerMigrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("SCHALE.Common.Database.WeekDungeonStageHistoryDB", b =>
-                {
-                    b.HasOne("SCHALE.Common.Database.AccountDB", "Account")
-                        .WithMany("WeekDungeonStageHistories")
-                        .HasForeignKey("AccountServerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-                });
-
             modelBuilder.Entity("SCHALE.Common.Database.AccountDB", b =>
                 {
-                    b.Navigation("Cafes");
-
                     b.Navigation("Characters");
 
                     b.Navigation("Currencies");
@@ -793,13 +632,9 @@ namespace SCHALE.Common.Migrations.SqlServerMigrations
 
                     b.Navigation("MissionProgresses");
 
-                    b.Navigation("MultiFloorRaids");
-
                     b.Navigation("Scenarios");
 
                     b.Navigation("Weapons");
-
-                    b.Navigation("WeekDungeonStageHistories");
                 });
 #pragma warning restore 612, 618
         }

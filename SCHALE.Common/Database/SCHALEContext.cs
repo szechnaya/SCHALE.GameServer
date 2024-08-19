@@ -23,6 +23,10 @@ namespace SCHALE.Common.Database
 
         public DbSet<EchelonDB> Echelons { get; set; }
         public DbSet<AccountTutorial> AccountTutorials { get; set; }
+        public DbSet<AccountCurrencyDB> Currencies { get; set; }
+        public DbSet<MultiFloorRaidDB> MultiFloorRaids { get; set; }
+        public DbSet<CafeDB> Cafes { get; set; }
+        public DbSet<WeekDungeonStageHistoryDB> WeekDungeonStageHistories { get; set; }
 
         public static SCHALEContext Create(string connectionString) =>
             new(new DbContextOptionsBuilder<SCHALEContext>()
@@ -84,6 +88,11 @@ namespace SCHALE.Common.Database
                 .WithOne(x => x.Account)
                 .HasForeignKey(x => x.AccountServerId)
                 .IsRequired();
+            modelBuilder.Entity<AccountDB>()
+                .HasMany(x => x.Currencies)
+                .WithOne(x => x.Account)
+                .HasForeignKey(x => x.AccountServerId)
+                .IsRequired();
 
             modelBuilder.Entity<AccountDB>(x => x.Property(b => b.RaidInfo).HasJsonConversion());
             modelBuilder.Entity<ItemDB>().Property(x => x.ServerId).ValueGeneratedOnAdd();
@@ -101,6 +110,22 @@ namespace SCHALE.Common.Database
 
             modelBuilder.Entity<MissionProgressDB>().Property(x => x.ServerId).ValueGeneratedOnAdd();
             modelBuilder.Entity<MissionProgressDB>().Property(x => x.ProgressParameters).HasJsonConversion();
+
+            modelBuilder.Entity<AccountCurrencyDB>().Property(x => x.ServerId).ValueGeneratedOnAdd();
+            modelBuilder.Entity<AccountCurrencyDB>().Property(x => x.CurrencyDict).HasJsonConversion();
+            modelBuilder.Entity<AccountCurrencyDB>().Property(x => x.UpdateTimeDict).HasJsonConversion();
+
+            modelBuilder.Entity<MultiFloorRaidDB>().Property(x => x.ServerId).ValueGeneratedOnAdd();
+            modelBuilder.Entity<MultiFloorRaidDB>().Property(x => x.TotalReceivableRewards).HasJsonConversion();
+            modelBuilder.Entity<MultiFloorRaidDB>().Property(x => x.TotalReceivedRewards).HasJsonConversion();
+
+            modelBuilder.Entity<CafeDB>().Property(x => x.ServerId).ValueGeneratedOnAdd();
+            modelBuilder.Entity<CafeDB>().Property(x => x.CafeVisitCharacterDBs).HasJsonConversion();
+            modelBuilder.Entity<CafeDB>().Property(x => x.FurnitureDBs).HasJsonConversion();
+            modelBuilder.Entity<CafeDB>().Property(x => x.ProductionDB).HasJsonConversion();
+
+            modelBuilder.Entity<WeekDungeonStageHistoryDB>().Property(x => x.ServerId).ValueGeneratedOnAdd();
+            modelBuilder.Entity<WeekDungeonStageHistoryDB>().Property(x => x.StarGoalRecord).HasJsonConversion();
         }
     }
 

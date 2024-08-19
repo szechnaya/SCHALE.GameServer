@@ -2,6 +2,7 @@
 using SCHALE.Common.Database.ModelExtensions;
 using SCHALE.Common.FlatData;
 using SCHALE.Common.NetworkProtocol;
+using SCHALE.Common.Parcel;
 using SCHALE.GameServer.Services;
 
 namespace SCHALE.GameServer.Controllers.Api.ProtocolHandlers
@@ -184,6 +185,39 @@ namespace SCHALE.GameServer.Controllers.Api.ProtocolHandlers
                 }
             );
 
+            // Default currencies
+            var defaultCurrencies = excelTableService
+                .GetTable<DefaultParcelExcelTable>()
+                .UnPack()
+                .DataList
+                .Where(x => x.ParcelType == ParcelType.Currency)
+                .ToList();
+
+            AccountCurrencyDB accountCurrency = new();
+            accountCurrency.AccountServerId = account.ServerId;
+            accountCurrency.AccountLevel = 1;
+            accountCurrency.AcademyLocationRankSum = 1;
+            accountCurrency.CurrencyDict = new();
+            foreach(var currencyType in Enum.GetValues(typeof(CurrencyTypes)).Cast<CurrencyTypes>())
+            {
+                if(currencyType == CurrencyTypes.Invalid)
+                    continue;
+
+                var amount = defaultCurrencies.Any(x => (CurrencyTypes)x.ParcelId == currencyType) ? defaultCurrencies.Where(x => (CurrencyTypes)x.ParcelId == currencyType).First().ParcelAmount : 0;
+                accountCurrency.CurrencyDict.Add(currencyType, amount);
+            }
+
+            accountCurrency.UpdateTimeDict = new();
+            foreach (var currencyType in Enum.GetValues(typeof(CurrencyTypes)).Cast<CurrencyTypes>())
+            {
+                if (currencyType == CurrencyTypes.Invalid)
+                    continue;
+
+                accountCurrency.UpdateTimeDict.Add(currencyType, DateTime.Now);
+            }
+
+            context.Currencies.Add(accountCurrency);
+
             // Default chars
             var defaultCharacters = excelTableService
                 .GetTable<DefaultCharacterExcelTable>()
@@ -226,6 +260,22 @@ namespace SCHALE.GameServer.Controllers.Api.ProtocolHandlers
                 .ToList();
 
             account.AddCharacters(context, [.. newCharacters]);
+            context.SaveChanges();
+
+            // Create Cafe
+            account.Cafes.Add(Cafe.CreateCafe(req.AccountId));
+            var count = 0;
+            foreach(var character in account.Characters)
+            {
+                account.Cafes.FirstOrDefault().CafeVisitCharacterDBs.Add(count, new()
+                {
+                    IsSummon = false,
+                    LastInteractTime = DateTime.MinValue,
+                    UniqueId = character.UniqueId,
+                    ServerId = character.ServerId
+                });
+                count++;
+            }
             context.SaveChanges();
 
             var favCharacter = defaultCharacters.Find(x => x.FavoriteCharacter);
@@ -281,111 +331,7 @@ namespace SCHALE.GameServer.Controllers.Api.ProtocolHandlers
             {
                 AccountCurrencySyncResponse = new AccountCurrencySyncResponse()
                 {
-                    AccountCurrencyDB = new AccountCurrencyDB
-                    {
-                        AccountLevel = 90,
-                        AcademyLocationRankSum = 1,
-                        CurrencyDict = new Dictionary<CurrencyTypes, long>
-                        {
-                            { CurrencyTypes.Gem, long.MaxValue }, // gacha currency 600
-                            { CurrencyTypes.GemPaid, 0 },
-                            { CurrencyTypes.GemBonus, long.MaxValue }, // default blue gem?
-                            { CurrencyTypes.Gold, 962_350_000 }, // credit 10,000
-                            { CurrencyTypes.ActionPoint, long.MaxValue }, // energy  24
-                            { CurrencyTypes.AcademyTicket, 3 },
-                            { CurrencyTypes.ArenaTicket, 5 },
-                            { CurrencyTypes.RaidTicket, 3 },
-                            { CurrencyTypes.WeekDungeonChaserATicket, 0 },
-                            { CurrencyTypes.WeekDungeonChaserBTicket, 0 },
-                            { CurrencyTypes.WeekDungeonChaserCTicket, 0 },
-                            { CurrencyTypes.SchoolDungeonATicket, 0 },
-                            { CurrencyTypes.SchoolDungeonBTicket, 0 },
-                            { CurrencyTypes.SchoolDungeonCTicket, 0 },
-                            { CurrencyTypes.TimeAttackDungeonTicket, 3 },
-                            { CurrencyTypes.MasterCoin, 0 },
-                            { CurrencyTypes.WorldRaidTicketA, 40 },
-                            { CurrencyTypes.WorldRaidTicketB, 40 },
-                            { CurrencyTypes.WorldRaidTicketC, 40 },
-                            { CurrencyTypes.ChaserTotalTicket, 6 },
-                            { CurrencyTypes.SchoolDungeonTotalTicket, 6 },
-                            { CurrencyTypes.EliminateTicketA, 1 },
-                            { CurrencyTypes.EliminateTicketB, 1 },
-                            { CurrencyTypes.EliminateTicketC, 1 },
-                            { CurrencyTypes.EliminateTicketD, 1 }
-                        },
-                        UpdateTimeDict = new Dictionary<CurrencyTypes, DateTime>
-                        {
-                            { CurrencyTypes.ActionPoint, DateTime.Parse("2024-04-26T19:29:12") },
-                            { CurrencyTypes.AcademyTicket, DateTime.Parse("2024-04-26T19:29:12") },
-                            { CurrencyTypes.ArenaTicket, DateTime.Parse("2024-04-26T19:29:12") },
-                            { CurrencyTypes.RaidTicket, DateTime.Parse("2024-04-26T19:29:12") },
-                            {
-                                CurrencyTypes.WeekDungeonChaserATicket,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.WeekDungeonChaserBTicket,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.WeekDungeonChaserCTicket,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.SchoolDungeonATicket,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.SchoolDungeonBTicket,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.SchoolDungeonCTicket,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.TimeAttackDungeonTicket,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            { CurrencyTypes.MasterCoin, DateTime.Parse("2024-04-26T19:29:12") },
-                            {
-                                CurrencyTypes.WorldRaidTicketA,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.WorldRaidTicketB,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.WorldRaidTicketC,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.ChaserTotalTicket,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.SchoolDungeonTotalTicket,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.EliminateTicketA,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.EliminateTicketB,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.EliminateTicketC,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            },
-                            {
-                                CurrencyTypes.EliminateTicketD,
-                                DateTime.Parse("2024-04-26T19:29:12")
-                            }
-                        }
-                    }
+                    AccountCurrencyDB = account.Currencies.FirstOrDefault()
                 },
                 CharacterListResponse = new CharacterListResponse()
                 {
@@ -581,12 +527,6 @@ namespace SCHALE.GameServer.Controllers.Api.ProtocolHandlers
         )
         {
             return new BillingPurchaseListByYostarResponse();
-        }
-
-        [ProtocolHandler(Protocol.WeekDungeon_List)]
-        public ResponsePacket WeekDungeon_ListHandler(WeekDungeonListRequest req)
-        {
-            return new WeekDungeonListResponse();
         }
 
         [ProtocolHandler(Protocol.SchoolDungeon_List)]
