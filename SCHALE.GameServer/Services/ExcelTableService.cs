@@ -35,7 +35,7 @@ namespace SCHALE.GameServer.Services
                         zip.Password = Convert.ToBase64String(TableService.CreatePassword(Path.GetFileName(excelZipPath)));
                     }
 #if DEBUG
-                    Log.Information("Password Used: " + TableService.CreatePassword(Path.GetFileName(excelZipPath)));
+                    Log.Information("Password Used: " + Convert.ToBase64String(TableService.CreatePassword(Path.GetFileName(excelZipPath))));
 #endif
                 }   
                 Log.Information("Excels already downloaded, skipping...");
